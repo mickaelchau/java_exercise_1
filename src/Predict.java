@@ -81,13 +81,12 @@ public class Predict implements Command {
             List<String> contentList = new ArrayList<String>(Arrays.asList(fileContent.split(" |\n")));
             List<String> contentListLowercase = contentList.stream().map(word -> word.toLowerCase()).collect(Collectors.toList());
             System.out.println("Give a word to predict:");
-            String wordToPredictAfter = stdin.nextLine();
+            String wordToPredictAfter = stdin.nextLine().toLowerCase();
             List<String> resultString = new ArrayList<String>();
             resultString.add(wordToPredictAfter);
             int index = 0;
             for (; index < predictLimit; index++) {
                 List<Entry<String, Integer>> entriesPredicted = getEntriesAfter(contentListLowercase, wordToPredictAfter);
-                System.out.println(entriesPredicted);
                 Optional<Entry<String, Integer>> maxEntryOptional = entriesPredicted.stream().max(Comparator.comparing(entry -> entry.getValue()));
                 if (maxEntryOptional.isEmpty()) {
                     break;
