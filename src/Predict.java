@@ -78,6 +78,7 @@ public class Predict implements Command {
         Path filePath = Paths.get(pathToFile);
         try {
             String fileContent = Files.readString(filePath);
+            System.out.println(fileContent);
             List<String> contentList = new ArrayList<String>(Arrays.asList(fileContent.split(" |\n")));
             List<String> contentListLowercase = contentList.stream().map(word -> word.toLowerCase()).collect(Collectors.toList());
             System.out.println("Give a word to predict:");
@@ -104,7 +105,7 @@ public class Predict implements Command {
                 System.out.println("Word not found: You have tried to predict a non-existing word");
             } 
             else {
-                print_prediction(resultString);
+                //print_prediction(resultString);
             }
         }
         catch(IOException error) {
