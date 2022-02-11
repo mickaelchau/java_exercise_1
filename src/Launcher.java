@@ -5,7 +5,7 @@ public class Launcher {
         System.out.println("Welcome to my brand new amazing program!");
         Scanner stdin = new Scanner(System.in);
         boolean shouldStop = false;
-        List<Command> commands = Arrays.asList(new Fibo(), new Quit(), new Freq());        
+        List<Command> commands = Arrays.asList(new Fibo(), new Quit(), new Freq(), new Predict());        
         while (!shouldStop) {
             System.out.println("Enter a command:");
             String userInput = stdin.nextLine();
