@@ -55,10 +55,8 @@ public class Predict implements Command {
     public String findNextWord(List<String> allMatchingWords, List<String> resultString) {
         String wordChoosen = "";
         for (String word : allMatchingWords) {
-            if (!resultString.contains(word)) {
-                wordChoosen = word;
-                break;
-            }
+            wordChoosen = word;
+            break;
         }
         return wordChoosen;
     }
@@ -78,7 +76,8 @@ public class Predict implements Command {
         Path filePath = Paths.get(pathToFile);
         try {
             String fileContent = Files.readString(filePath);
-            List<String> contentList = new ArrayList<String>(Arrays.asList(fileContent.split(" |\n")));
+            List<String> contentList = new ArrayList<String>(Arrays.asList(fileContent.split(" ")));
+            System.out.println(contentList);
             List<String> contentListLowercase = contentList.stream().map(word -> word.toLowerCase()).collect(Collectors.toList());
             System.out.println("Give a word to predict:");
             String wordToPredictAfter = stdin.nextLine().toLowerCase();
@@ -96,9 +95,7 @@ public class Predict implements Command {
                 Integer maxWordOccurence = maxValueEntry.getValue();
                 List<String> allMatchingWords = getMaxWordsAfter(entriesPredicted, maxWordOccurence);
                 entriesPredicted.removeIf(s -> s.getValue().equals(maxWordOccurence));
-                //System.out.println(allMatchingWords);
                 List<String> sortedMatchingWords = sortByFirstOccurence(allMatchingWords, contentListLowercase, wordToPredictAfter);
-                //System.out.println(sortedMatchingWords);
                 String findWord = findNextWord(sortedMatchingWords, resultString);
                 resultString.add(findWord);
                 wordToPredictAfter = findWord;
