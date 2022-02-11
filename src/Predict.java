@@ -101,7 +101,7 @@ public class Predict implements Command {
                 wordToPredictAfter = findWord;
             }
             if (index == 0) {
-                System.err.println("Word not found: You have tried to predict a non-existing word");
+                System.out.println("Word not found: You have tried to predict a non-existing word");
             } 
             else {
                 print_prediction(resultString);
