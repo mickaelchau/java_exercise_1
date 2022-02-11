@@ -2,6 +2,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.Map.Entry;
 import java.io.IOException;
 
 public class Predict implements Command {
@@ -11,7 +12,7 @@ public class Predict implements Command {
 
     public int predictLimit = 20;
 
-    public HashMap<String, Integer> getWordsAfter(List<String> fileContent, String word) {
+    public List<Entry<String, Integer>> getEntriesAfter(List<String> fileContent, String word) {
         HashMap<String, Integer> wordsUsedAfter = new HashMap<String, Integer>();
         int fileContentLastElementIndex = fileContent.size() - 1;
         for (int index = 0; index < fileContentLastElementIndex; index++) {
@@ -24,19 +25,71 @@ public class Predict implements Command {
                 }
             }
         }
-        return wordsUsedAfter;
+        List<Entry<String, Integer>> wordsEntryList = new ArrayList<>(wordsUsedAfter.entrySet());
+		wordsEntryList.sort(Entry.comparingByValue());
+        Collections.reverse(wordsEntryList);
+        return wordsEntryList;
     }
+/*
+    public List<Entry<String, Integer>> sortEntriesByKey(List<Entry<String, Integer>> wordsEntries, List<String> fileContent) {
+        List<Entry<String, Integer>> wordsWithSameNumber = new ArrayList<String>();
+        List<String> finalWordsWithSameNumber =  new ArrayList<String>();
+        Integer occurences = -1;
+        for (Entry entry : wordsEntries) {
+            if (occurences == -1 && entry.getValue() != -1) {
+                wordsWithSameNumber.add(entry.getKey());
+                occurences = entry.getValue();
+            } else if (occurences == entry.getValue()){
+                wordsWithSameNumber.add(entry);
+            }
+            entry.setValue(-1);
+        }
+            
+            for (String word : fileContent) {
+                if (wordsWithSameNumber.contains(word)) {
+                    finalWordsWithSameNumber.Add(word);
+                }
+            }
+    }*/
 
-    public String getBiggerKey(HashMap<String, Integer> wordsUsedAfter) {
-        int max_value = 0;
-        String max_key = "\0";
-        for (HashMap.Entry<String, Integer> entry : wordsUsedAfter.entrySet()) {
-            if (entry.getValue() > max_value) {
-                max_value = entry.getValue();
-                max_key = entry.getKey();
+    public static List<String> getMaxWordsAfter(List<Entry<String, Integer>> entriesPredicted, Integer max) {
+        List<String> maxWordsAfter = new ArrayList<String>();
+        for (Entry<String, Integer> entry : entriesPredicted) {
+            if (entry.getValue() == max) {
+                maxWordsAfter.add(entry.getKey());
             }
         }
-        return max_key;
+        return maxWordsAfter;
+    }
+
+    public List<String> sortByFirstOccurence(List<String> words, List<String>contentList) {
+        List<String> sortedWords = new ArrayList<String>();
+        for (String contentWord : contentList) {
+            if (words.contains(contentWord) && !sortedWords.contains(contentWord)) {
+                sortedWords.add(contentWord);
+            }
+        }
+        return sortedWords;
+    }
+
+    public String findNextWord(List<String> allMatchingWords, List<String> resultString) {
+        String wordChoosen = "";
+        for (String word : allMatchingWords) {
+            if (!resultString.contains(word)) {
+                wordChoosen = word;
+                break;
+            }
+        }
+        return wordChoosen;
+    }
+
+    public void print_prediction(List<String> prediction) {
+        int lastElementIndex = prediction.size() - 1;
+        System.out.print(prediction.get(0));
+        for (int index = 1; index < lastElementIndex; index++) {
+            System.out.print(" " + prediction.get(index));
+        }
+        System.out.println();
     }
 
     public boolean run(Scanner stdin) {
@@ -46,26 +99,32 @@ public class Predict implements Command {
         try {
             String fileContent = Files.readString(filePath);
             List<String> contentList = new ArrayList<String>(Arrays.asList(fileContent.split(" |\n")));
+            contentList.forEach(word -> word.toLowerCase());
             System.out.println("Give a word to predict:");
             String wordToPredictAfter = stdin.nextLine();
-            String wordAfter;
-            HashMap<String, Integer> wordsAfter;
-            System.out.print(wordToPredictAfter);
+            List<String> resultString = new ArrayList<String>();
+            resultString.add(wordToPredictAfter);
             int index = 0;
             for (; index < predictLimit; index++) {
-                wordsAfter = getWordsAfter(contentList, wordToPredictAfter);
-                wordAfter = getBiggerKey(wordsAfter);
-                if (wordAfter.compareTo("") == 0) {
+                List<Entry<String, Integer>> entriesPredicted = getEntriesAfter(contentList, wordToPredictAfter);
+                Optional<Entry<String, Integer>> maxEntryOptional = entriesPredicted.stream().max(Comparator.comparing(entry -> entry.getValue()));
+                if (maxEntryOptional.isEmpty()) {
                     break;
-                } 
-                else {
-                    wordToPredictAfter = wordAfter;
-                    System.out.print(" "+ wordAfter);
                 }
+                Entry<String, Integer> maxValueEntry = maxEntryOptional.get(); 
+                Integer maxWordOccurence = maxValueEntry.getValue();
+                List<String> allMatchingWords = getMaxWordsAfter(entriesPredicted, maxWordOccurence);
+                entriesPredicted.removeIf(s -> s.getValue().equals(maxWordOccurence));
+                List<String> sortedMatchingWords = sortByFirstOccurence(allMatchingWords, contentList);
+                String findWord = findNextWord(sortedMatchingWords, resultString);
+                resultString.add(findWord);
+                wordToPredictAfter = findWord;
             }
-            System.out.println();
             if (index == 0) {
                 System.err.println("Word not found: You have tried to predict a non-existing word");
+            } 
+            else {
+                print_prediction(resultString);
             }
         }
         catch(IOException error) {
