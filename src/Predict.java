@@ -1,6 +1,7 @@
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.stream.Collectors;
 import java.util.*;
 import java.util.Map.Entry;
 import java.io.IOException;
@@ -30,27 +31,6 @@ public class Predict implements Command {
         Collections.reverse(wordsEntryList);
         return wordsEntryList;
     }
-/*
-    public List<Entry<String, Integer>> sortEntriesByKey(List<Entry<String, Integer>> wordsEntries, List<String> fileContent) {
-        List<Entry<String, Integer>> wordsWithSameNumber = new ArrayList<String>();
-        List<String> finalWordsWithSameNumber =  new ArrayList<String>();
-        Integer occurences = -1;
-        for (Entry entry : wordsEntries) {
-            if (occurences == -1 && entry.getValue() != -1) {
-                wordsWithSameNumber.add(entry.getKey());
-                occurences = entry.getValue();
-            } else if (occurences == entry.getValue()){
-                wordsWithSameNumber.add(entry);
-            }
-            entry.setValue(-1);
-        }
-            
-            for (String word : fileContent) {
-                if (wordsWithSameNumber.contains(word)) {
-                    finalWordsWithSameNumber.Add(word);
-                }
-            }
-    }*/
 
     public static List<String> getMaxWordsAfter(List<Entry<String, Integer>> entriesPredicted, Integer max) {
         List<String> maxWordsAfter = new ArrayList<String>();
@@ -99,14 +79,14 @@ public class Predict implements Command {
         try {
             String fileContent = Files.readString(filePath);
             List<String> contentList = new ArrayList<String>(Arrays.asList(fileContent.split(" |\n")));
-            contentList.forEach(word -> word.toLowerCase());
+            List<String> contentListLowercase = contentList.stream().map(word -> word.toLowerCase()).collect(Collectors.toList());
             System.out.println("Give a word to predict:");
             String wordToPredictAfter = stdin.nextLine();
             List<String> resultString = new ArrayList<String>();
             resultString.add(wordToPredictAfter);
             int index = 0;
             for (; index < predictLimit; index++) {
-                List<Entry<String, Integer>> entriesPredicted = getEntriesAfter(contentList, wordToPredictAfter);
+                List<Entry<String, Integer>> entriesPredicted = getEntriesAfter(contentListLowercase, wordToPredictAfter);
                 Optional<Entry<String, Integer>> maxEntryOptional = entriesPredicted.stream().max(Comparator.comparing(entry -> entry.getValue()));
                 if (maxEntryOptional.isEmpty()) {
                     break;
@@ -115,7 +95,7 @@ public class Predict implements Command {
                 Integer maxWordOccurence = maxValueEntry.getValue();
                 List<String> allMatchingWords = getMaxWordsAfter(entriesPredicted, maxWordOccurence);
                 entriesPredicted.removeIf(s -> s.getValue().equals(maxWordOccurence));
-                List<String> sortedMatchingWords = sortByFirstOccurence(allMatchingWords, contentList);
+                List<String> sortedMatchingWords = sortByFirstOccurence(allMatchingWords, contentListLowercase);
                 String findWord = findNextWord(sortedMatchingWords, resultString);
                 resultString.add(findWord);
                 wordToPredictAfter = findWord;
