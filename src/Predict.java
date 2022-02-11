@@ -87,7 +87,7 @@ public class Predict implements Command {
             int index = 0;
             for (; index < predictLimit; index++) {
                 List<Entry<String, Integer>> entriesPredicted = getEntriesAfter(contentListLowercase, wordToPredictAfter);
-                System.out.println(entriesPredicted);
+                //System.out.println(entriesPredicted);
                 Optional<Entry<String, Integer>> maxEntryOptional = entriesPredicted.stream().max(Comparator.comparing(entry -> entry.getValue()));
                 if (maxEntryOptional.isEmpty()) {
                     break;
@@ -96,9 +96,9 @@ public class Predict implements Command {
                 Integer maxWordOccurence = maxValueEntry.getValue();
                 List<String> allMatchingWords = getMaxWordsAfter(entriesPredicted, maxWordOccurence);
                 entriesPredicted.removeIf(s -> s.getValue().equals(maxWordOccurence));
-                System.out.println(allMatchingWords);
+                //System.out.println(allMatchingWords);
                 List<String> sortedMatchingWords = sortByFirstOccurence(allMatchingWords, contentListLowercase, wordToPredictAfter);
-                System.out.println(sortedMatchingWords);
+                //System.out.println(sortedMatchingWords);
                 String findWord = findNextWord(sortedMatchingWords, resultString);
                 resultString.add(findWord);
                 wordToPredictAfter = findWord;
