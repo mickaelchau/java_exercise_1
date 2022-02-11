@@ -7,7 +7,7 @@ public class Launcher {
         boolean shouldStop = false;
         List<Command> commands = Arrays.asList(new Fibo(), new Quit(), new Freq(), new Predict());        
         while (!shouldStop) {
-            System.out.println("Enter a command:");
+            //System.out.println("Enter a command:");
             String userInput = stdin.nextLine();
             boolean commandRun = false;
             for (Command command : commands) {
