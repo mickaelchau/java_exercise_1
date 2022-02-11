@@ -67,9 +67,9 @@ public class Predict implements Command {
         int lastElementIndex = prediction.size() - 1;
         System.out.print(prediction.get(0));
         for (int index = 1; index < lastElementIndex; index++) {
-            System.out.print(" " + prediction.get(index));
+            System.out.printf(" " + prediction.get(index));
         }
-        System.out.println();
+        System.out.printf("\n");
     }
 
     public boolean run(Scanner stdin) {
