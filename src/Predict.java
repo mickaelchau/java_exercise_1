@@ -87,6 +87,7 @@ public class Predict implements Command {
             int index = 0;
             for (; index < predictLimit; index++) {
                 List<Entry<String, Integer>> entriesPredicted = getEntriesAfter(contentListLowercase, wordToPredictAfter);
+                System.out.println(entriesPredicted);
                 Optional<Entry<String, Integer>> maxEntryOptional = entriesPredicted.stream().max(Comparator.comparing(entry -> entry.getValue()));
                 if (maxEntryOptional.isEmpty()) {
                     break;
