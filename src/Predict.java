@@ -42,11 +42,11 @@ public class Predict implements Command {
         return maxWordsAfter;
     }
 
-    public List<String> sortByFirstOccurence(List<String> words, List<String>contentList) {
+    public List<String> sortByFirstOccurence(List<String> words, List<String>contentList, String wordAfter) {
         List<String> sortedWords = new ArrayList<String>();
-        for (String contentWord : contentList) {
-            if (words.contains(contentWord) && !sortedWords.contains(contentWord)) {
-                sortedWords.add(contentWord);
+        for (int index = 1; index < contentList.size(); index++) {
+            if (words.contains(contentList.get(index)) && wordAfter.equals(contentList.get(index - 1))) {
+                sortedWords.add(contentList.get(index));
             }
         }
         return sortedWords;
@@ -78,7 +78,6 @@ public class Predict implements Command {
         Path filePath = Paths.get(pathToFile);
         try {
             String fileContent = Files.readString(filePath);
-            System.out.println(fileContent);
             List<String> contentList = new ArrayList<String>(Arrays.asList(fileContent.split(" |\n")));
             List<String> contentListLowercase = contentList.stream().map(word -> word.toLowerCase()).collect(Collectors.toList());
             System.out.println("Give a word to predict:");
@@ -88,6 +87,7 @@ public class Predict implements Command {
             int index = 0;
             for (; index < predictLimit; index++) {
                 List<Entry<String, Integer>> entriesPredicted = getEntriesAfter(contentListLowercase, wordToPredictAfter);
+                System.out.println(entriesPredicted);
                 Optional<Entry<String, Integer>> maxEntryOptional = entriesPredicted.stream().max(Comparator.comparing(entry -> entry.getValue()));
                 if (maxEntryOptional.isEmpty()) {
                     break;
@@ -96,7 +96,9 @@ public class Predict implements Command {
                 Integer maxWordOccurence = maxValueEntry.getValue();
                 List<String> allMatchingWords = getMaxWordsAfter(entriesPredicted, maxWordOccurence);
                 entriesPredicted.removeIf(s -> s.getValue().equals(maxWordOccurence));
-                List<String> sortedMatchingWords = sortByFirstOccurence(allMatchingWords, contentListLowercase);
+                System.out.println(allMatchingWords);
+                List<String> sortedMatchingWords = sortByFirstOccurence(allMatchingWords, contentListLowercase, wordToPredictAfter);
+                System.out.println(sortedMatchingWords);
                 String findWord = findNextWord(sortedMatchingWords, resultString);
                 resultString.add(findWord);
                 wordToPredictAfter = findWord;
@@ -105,7 +107,7 @@ public class Predict implements Command {
                 System.out.println("Word not found: You have tried to predict a non-existing word");
             } 
             else {
-                //print_prediction(resultString);
+                print_prediction(resultString);
             }
         }
         catch(IOException error) {
